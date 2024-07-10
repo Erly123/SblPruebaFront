@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar, Nav, Table, Button, Modal, Form } from 'react-bootstrap';
+import { Navbar, Nav, Table, Button, Modal, Form, Col, Row, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 
 const Banco = () => {
@@ -11,6 +11,7 @@ const Banco = () => {
     observation: '',
     Grado: ''
   });
+  const [filterGrade, setFilterGrade] = useState(''); // Estado para el filtro de grado
 
   useEffect(() => {
     fetchBankbooks();
@@ -75,6 +76,14 @@ const Banco = () => {
     }
   };
 
+  const handleFilterChange = (grade) => {
+    setFilterGrade(grade);
+  };
+
+  const filteredBankbooks = filterGrade 
+    ? bankbooks.filter(bankbook => bankbook.Grado === filterGrade) 
+    : bankbooks;
+
   return (
     <div>
       <Navbar bg="light" expand="lg">
@@ -91,85 +100,111 @@ const Banco = () => {
         </Navbar.Collapse>
       </Navbar>
 
-      <div className="container mt-4">
-        <h2>Banco de Libros</h2>
+      <div className="container-fluid mt-4">
+        <Row>
+          <Col md={3}>
+            <h4>Filtrar por Grado</h4>
+            <ListGroup>
+              {['PRIMERO', 'SEGUNDO', 'TERCERO', 'CUARTO', 'QUINTO'].map(grade => (
+                <ListGroup.Item 
+                  key={grade} 
+                  active={filterGrade === grade} 
+                  onClick={() => handleFilterChange(grade)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {grade}
+                </ListGroup.Item>
+              ))}
+              <ListGroup.Item 
+                active={filterGrade === ''} 
+                onClick={() => handleFilterChange('')}
+                style={{ cursor: 'pointer' }}
+              >
+                Todos
+              </ListGroup.Item>
+            </ListGroup>
+          </Col>
+          <Col md={9}>
+            <h2>Banco de Libros</h2>
 
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>BankId</th>
-              <th>StudentId</th>
-              <th>Observación</th>
-              <th>Grado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bankbooks.map((bankbook) => (
-              <tr key={bankbook.id}>
-                <td>{bankbook.id}</td>
-                <td>{bankbook.BankId}</td>
-                <td>{bankbook.studentId}</td>
-                <td>{bankbook.observation}</td>
-                <td>{bankbook.Grado}</td>
-                <td>
-                  <Button variant="warning" size="sm" onClick={() => handleEdit(bankbook)}>Editar</Button>
-                  <Button variant="danger" size="sm" className="ml-2" onClick={() => handleDelete(bankbook.id)}>Eliminar</Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>BankId</th>
+                  <th>StudentId</th>
+                  <th>Observación</th>
+                  <th>Grado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredBankbooks.map((bankbook) => (
+                  <tr key={bankbook.id}>
+                    <td>{bankbook.id}</td>
+                    <td>{bankbook.BankId}</td>
+                    <td>{bankbook.studentId}</td>
+                    <td>{bankbook.observation}</td>
+                    <td>{bankbook.Grado}</td>
+                    <td>
+                      <Button variant="warning" size="sm" onClick={() => handleEdit(bankbook)}>Editar</Button>
+                      <Button variant="danger" size="sm" className="ml-2" onClick={() => handleDelete(bankbook.id)}>Eliminar</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
 
-        <div className="mt-3">
-          <h3>Agregar Nuevo Banco de Libro</h3>
-          <Form onSubmit={handleSubmitNewBankbook}>
-            <Form.Group controlId="BankId">
-              <Form.Label>BankId</Form.Label>
-              <Form.Control
-                type="text"
-                name="BankId"
-                value={currentBankbook.BankId}
-                onChange={handleInputChange}
-                required
-              />
-            </Form.Group>
-            <Form.Group controlId="studentId">
-              <Form.Label>StudentId</Form.Label>
-              <Form.Control
-                type="number"
-                name="studentId"
-                value={currentBankbook.studentId}
-                onChange={handleInputChange}
-                required
-              />
-            </Form.Group>
-            <Form.Group controlId="observation">
-              <Form.Label>Observación</Form.Label>
-              <Form.Control
-                type="text"
-                name="observation"
-                value={currentBankbook.observation}
-                onChange={handleInputChange}
-                required
-              />
-            </Form.Group>
-            <Form.Group controlId="Grado">
-              <Form.Label>Grado</Form.Label>
-              <Form.Control
-                type="text"
-                name="Grado"
-                value={currentBankbook.Grado}
-                onChange={handleInputChange}
-                required
-              />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-              Agregar Banco de Libro
-            </Button>
-          </Form>
-        </div>
+            <div className="mt-3">
+              <h3>Agregar Nuevo Banco de Libro</h3>
+              <Form onSubmit={handleSubmitNewBankbook}>
+                <Form.Group controlId="BankId">
+                  <Form.Label>BankId</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="BankId"
+                    value={currentBankbook.BankId}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group controlId="studentId">
+                  <Form.Label>StudentId</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="studentId"
+                    value={currentBankbook.studentId}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group controlId="observation">
+                  <Form.Label>Observación</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="observation"
+                    value={currentBankbook.observation}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group controlId="Grado">
+                  <Form.Label>Grado</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Grado"
+                    value={currentBankbook.Grado}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+                <Button variant="primary" type="submit">
+                  Agregar Banco de Libro
+                </Button>
+              </Form>
+            </div>
+          </Col>
+        </Row>
       </div>
 
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
